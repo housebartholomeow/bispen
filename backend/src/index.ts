@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { createUser, loginUser } from "./controller/user.controller.ts";
-import { createShow, getAllShows } from "./controller/show.controller.ts";
+import { createShow, getAllShows, getShowsByHost } from "./controller/show.controller.ts";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +15,7 @@ app.post("/api/loginUser", loginUser);
 
 app.post("/api/createShow", createShow);
 app.get("/api/shows", getAllShows);
+app.get("/api/shows/host/:hostId", getShowsByHost);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

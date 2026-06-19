@@ -42,44 +42,31 @@ export default function Landing() {
     fetchShows();
   }, []);
 
-  // 2. Auto-Scroll Effect
+  // 2. Auto-Scroll Effect for the loop
   useEffect(() => {
-    // Only start the timer if shows are loaded
     if (shows.length === 0) return;
 
-    // --- SPEED CONTROL ---
     // Change this number to adjust how fast it moves (3000 = 3 seconds)
-    const SCROLL_INTERVAL_MS = 3000; 
+    const SCROLL_INTERVAL_MS = 1000; 
 
     const autoScroll = setInterval(() => {
-      // Only scroll if the user is not hovering over the carousel
+      // Only scroll if the user is not interacting with the carousel
       if (!isPausedRef.current && carouselRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
         
-        // Math.ceil helps prevent decimal rounding errors.
-        // We subtract 10 pixels to ensure it consistently detects the end.
+        // Check if we hit the end of the carousel
         if (Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 10) {
-          // If at the end, smoothly go back to the start
+          // Rewind back to the start smoothly
           carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
-          // Otherwise, scroll right by roughly one card's width
+          // Scroll right by roughly one card's width
           carouselRef.current.scrollBy({ left: clientWidth * 0.8, behavior: 'smooth' });
         }
       }
     }, SCROLL_INTERVAL_MS);
 
-    // This cleanup function destroys the timer when the user leaves the page
     return () => clearInterval(autoScroll);
-  }, [shows]); // This effect restarts if the 'shows' array changes
-
-  // Function for manual left/right clicks
-  const scroll = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const { clientWidth } = carouselRef.current;
-      const scrollAmount = direction === 'left' ? -(clientWidth * 0.8) : (clientWidth * 0.8);
-      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+  }, [shows]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -122,28 +109,6 @@ export default function Landing() {
               </span>
             )}
           </div>
-          
-          {/* Manual Controls */}
-          {!loading && !error && shows.length > 0 && (
-            <div className="flex gap-2">
-              <button 
-                onClick={() => scroll('left')}
-                className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 hover:text-gray-900 transition shadow-sm"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-              </button>
-              <button 
-                onClick={() => scroll('right')}
-                className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 hover:text-gray-900 transition shadow-sm"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
         
         {loading ? (
@@ -160,7 +125,6 @@ export default function Landing() {
           /* Carousel Container */
           <div 
             ref={carouselRef}
-            // Mouse/Touch events tell the auto-scroll interval to pause!
             onMouseEnter={() => (isPausedRef.current = true)}
             onMouseLeave={() => (isPausedRef.current = false)}
             onTouchStart={() => (isPausedRef.current = true)}

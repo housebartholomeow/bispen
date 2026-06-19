@@ -65,3 +65,27 @@ export const getAllShows = async (req: Request, res: Response) => {
         return res.status(500).json({ error: "Internal server error." });
     }
 };
+
+export const getShowsByHost = async (req: Request, res: Response) => {
+    try {
+        const { hostId } = req.params;
+
+        if (!hostId) {
+            return res.status(400).json({ error: "Host ID is required." });
+        }
+
+        const hostShows = await db.select()
+            .from(shows)
+            .where(eq(shows.hostId, hostId))
+            .orderBy(asc(shows.eventDate)); 
+
+        return res.status(200).json({ 
+            message: "Shows retrieved successfully.", 
+            shows: hostShows 
+        });
+
+    } catch (error: any) {
+        console.error('Error fetching host shows:', error);
+        return res.status(500).json({ error: "Internal server error." });
+    }
+};
